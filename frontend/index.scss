@@ -1,0 +1,19 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.publicLayout {
+  height: 100vh;
+}
+
+.publicMain {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.privateLayout {
+  width: 1200px;
+  margin: 0 auto;
+}

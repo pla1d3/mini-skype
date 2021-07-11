@@ -1,0 +1,53 @@
+.header {
+  padding: 8px 16px;
+  border-bottom: 1px #1f1f1f solid;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.descUser {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+}
+
+.iconPhone {
+  font-size: 28px;
+  transform: rotate(0deg);
+  color: #177ddc;
+}
+
+.wrapper {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.inputWrapper {
+  border-top: 1px solid #202020;
+  position: relative;
+}
+
+.inputMessage {
+  outline: none;
+  padding: 10px 16px;
+  width: 100%;
+  background-color: transparent;
+  border: none;
+}
+
+.send {
+  position: absolute !important;
+  right: 6px;
+  top: 50%;
+  margin-top: -16px;
+  font-size: 18px;
+}

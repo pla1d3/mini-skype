@@ -1,0 +1,33 @@
+.desc {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+}
+
+.add {
+  margin-bottom: 12px;
+}
+
+.row:first-child {
+  border-top: 1px solid #1b1b1b;
+}
+
+.row {
+  align-items: center;
+  cursor: pointer;
+  padding: 12px;
+  border-bottom: 1px solid #1b1b1b;
+
+  &:hover {
+    background-color: #1b1b1b;
+  }
+}
+
+.contacts {
+  height: calc(100vh - 106px);
+  overflow: auto;
+}
+
+.rowActive {
+  background-color: #1b1b1b;
+}

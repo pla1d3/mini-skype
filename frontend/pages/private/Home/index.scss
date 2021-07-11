@@ -1,0 +1,25 @@
+.tabs {
+  width: 360px;
+  padding-right: 64px;
+}
+
+.row {
+  flex-flow: row;
+  display: flex;
+}
+
+.tab {
+  width: 120px;
+  text-align: center;
+}
+
+.content {
+  background-color: #0e0e0e;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+}
+
+.welcome {
+  padding: 16px;
+}

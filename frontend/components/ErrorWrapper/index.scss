@@ -1,0 +1,16 @@
+.err {
+  font-size: 10px;
+  color: #fb2525;
+  margin-top: 4px;
+}
+
+.errCase {
+  div {
+    color: #fb2525;
+    border-color: #fb2525;
+  }
+
+  input {
+    border-color: #fb2525 !important;
+  }
+}
