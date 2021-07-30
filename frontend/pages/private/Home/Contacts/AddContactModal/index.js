@@ -5,11 +5,11 @@ import { useStore } from 'helpers/hooks';
 import { observer } from 'mobx-react-lite';
 import s from './index.scss';
 
-export default observer(function AddContact ({ visible, onChange }) {
+export default observer(function AddContactModal ({ visible, onChange }) {
+  const user = useStore('user');
   const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
-  const user = useStore('user');
 
   async function onSearch (login) {
     if (login.length >= 3) {

@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Avatar, Row, Col, Typography, Button } from 'antd';
-import { c, axios } from 'helpers';
 import { observer } from 'mobx-react-lite';
 import { useStore } from 'helpers/hooks';
-import AddContact from './AddContact';
+import { c } from 'helpers';
+import AddContactModal from './AddContactModal';
 import s from './index.scss';
 
-export default observer(function Contacts ({
-  selectedUserId,
-  onChangeSelectedUserId
-}) {
+export default observer(function Contacts ({ value, onSelect }) {
   const user = useStore('user');
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -24,8 +21,8 @@ export default observer(function Contacts ({
         {
           user.data.contacts.map(user => (
             <Row
-              className={c([s.row, { [s.rowActive]: selectedUserId === user._id }])}
-              onClick={()=> onChangeSelectedUserId(user._id)}
+              className={c([s.row, { [s.rowActive]: value === user._id }])}
+              onClick={()=> onSelect(user._id)}
             >
               <Avatar size={48} />
               <Col className={s.desc}>
@@ -37,7 +34,7 @@ export default observer(function Contacts ({
         }
       </Col>
 
-      <AddContact
+      <AddContactModal
         visible={modalVisible}
         onChange={v=> setModalVisible(v)}
       />

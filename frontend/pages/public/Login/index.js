@@ -29,7 +29,7 @@ export default function Login () {
     const res = await axios.post('/login', data);
     if (!res.data.error) {
       user.set(res.data);
-      history.push('/dashboard');
+      history.push('/');
       return;
     }
 

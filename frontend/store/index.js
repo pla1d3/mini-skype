@@ -13,3 +13,12 @@ export const getStore = storeName=> {
   }
   return store[storeName];
 };
+
+export const getSocket = storeName=> {
+  if (!store[storeName]) {
+    store[storeName] = {
+      data: null,
+      ws: new WebSocket('/' + storeName),
+    }
+  }
+}

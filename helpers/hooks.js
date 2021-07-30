@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { validate, qs, axios } from 'helpers';
-import { getStore } from '../frontend/store';
+import { getStore, getSocket } from '../frontend/store';
 
 export function useStore (storeName) {
   return getStore(storeName);

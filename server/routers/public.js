@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { auth, users } from 'controlers';
+import { auth, users, chats } from 'controlers';
 import config from '../../config';
 
 const publicRouter = Router();
@@ -27,6 +27,12 @@ publicRouter.get('/users/:userId', async (req, res)=> {
 publicRouter.post('/users/contacts/add', async (req, res)=> {
   await users.addContact(req.body);
   res.status(200).send('ok');
-})
+});
+
+// chats
+publicRouter.get('/chats/:chatId', async (req, res)=> {
+  const data = await chats.getItem({ chatId: req.params.chatId });
+  res.status(200).send(data);
+});
 
 export default publicRouter;

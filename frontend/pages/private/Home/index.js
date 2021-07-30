@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import { Tabs, Col } from 'antd';
+import { useStore } from 'helpers/hooks';
+import { axios } from 'helpers';
+import { observer } from 'mobx-react-lite';
 import Contacts from './Contacts';
 import Chat from './Chat';
 import s from './index.scss';
 
-export default function Home () {
+export default observer(function Home () {
+  const user = useStore('user')
   const [slide, setSlide] = useState('contacts');
-  const [selectedUserId, setSelecedtUserId] = useState('');
+  const [selectUserId, setSelectUserId] = useState('');
+  const [chatId, setChatId] = useState('');
+
+  async function onContactSelect (userId) {
+    setSelectUserId(userId)
+    setChatId(user.data._id + '__' + userId)
+  }
 
   function onChangeTab (value) {
-    setSelecedtUserId('');
     setSlide(value);
   }
 
@@ -28,8 +37,8 @@ export default function Home () {
             tab={<div className={s.tab}>Contacts</div>}
           >
             <Contacts
-              selectedUserId={selectedUserId}
-              onChangeSelectedUserId={v=> setSelecedtUserId(v)}
+              value={selectUserId}
+              onSelect={v=> onContactSelect(v)}
             />
           </Tabs.TabPane>
 
@@ -51,15 +60,15 @@ export default function Home () {
 
       <Col className={s.content}>
         {
-          !selectedUserId &&
+          !selectUserId &&
           <Col className={s.welcome}>Welcome! /username/</Col>
         }
 
         {
-          !!selectedUserId &&
-          <Chat userId={selectedUserId} />
+          !!selectUserId &&
+          <Chat chatId={chatId} />
         }
       </Col>
     </div>
   );
-};
+})

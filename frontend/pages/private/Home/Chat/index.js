@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Button, Row, Avatar, Typography } from 'antd';
 import { PhoneFilled, SendOutlined } from '@ant-design/icons';
+import { observer } from 'mobx-react-lite';
 import { axios } from 'helpers';
 import s from './index.scss';
 
-export default function Chat ({ userId }) {
+export default observer(function Chat ({ chatId }) {
   const [message, setMessage] = useState('');
-  const [user, setUser] = useState({});
+  const [chat, setChat] = useState({});
 
   useEffect(()=> {
     (async ()=> {
-      const res = await axios.get(`users/${userId}`);
-      setUser(res.data);
+      const res = await axios.get(`chats/${chatId}`);
+      setChat(res.data);
     })()
-  }, [userId]);
+  }, [chatId]);
 
   return (
     <Col className={s.chat}>
@@ -21,7 +22,9 @@ export default function Chat ({ userId }) {
         <Row>
           <Avatar size={48} />
           <Col className={s.descUser}>
-            <Typography.Text strong={true}>{user.login}</Typography.Text>
+            <Typography.Text strong={true}>
+              {chat.type === 'private' ? chat.users[0].login : chat.title}
+            </Typography.Text>
             <Typography.Text type="secondary">last visit 4 minutes ago</Typography.Text>
           </Col>
         </Row>
@@ -32,11 +35,7 @@ export default function Chat ({ userId }) {
       </Row>
 
       <Col className={s.wrapper}>
-        <Col>{`Приветствую.
-        Нужно сделать аватарку канала.
-        Связанную строением мозга, эволюцией от обезьяны , генном человека, гормоны.
-        На усмотрение дизайнера можно добавить или убрать что либо.
-        Если ли здесь дизайнеры? Напишите в личные сообщения.`}</Col>
+        <Col>{`message`}</Col>
       </Col>
 
       <Row className={s.inputWrapper}>
@@ -52,4 +51,4 @@ export default function Chat ({ userId }) {
       </Row>
     </Col>
   )
-}
+})

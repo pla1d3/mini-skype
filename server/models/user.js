@@ -6,6 +6,7 @@ const userSchema = new Schema({
   password: { type: String, require: true },
   name: String,
   avatarUrl: String,
+  lastVisit: Number,
   dateReg: {
     type: String,
     default: ()=> new Date().getTime(),
