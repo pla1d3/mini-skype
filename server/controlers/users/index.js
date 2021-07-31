@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getList ({ query = {} }) {
+  async getList (query = {}) {
     const _query = {};
 
     if (query.login) _query.login = { $regex: '^' + query.login, $options: 'i' };

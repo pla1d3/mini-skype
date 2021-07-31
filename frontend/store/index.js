@@ -18,7 +18,7 @@ export const getSocket = storeName=> {
   if (!store[storeName]) {
     store[storeName] = {
       data: null,
-      ws: new WebSocket('/' + storeName),
+      // ws: new WebSocket('/' + storeName),
     }
   }
 }

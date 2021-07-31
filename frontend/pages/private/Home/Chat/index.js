@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Col, Button, Row, Avatar, Typography } from 'antd';
 import { PhoneFilled, SendOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
-import { axios } from 'helpers';
 import s from './index.scss';
 
-export default observer(function Chat ({ chatId }) {
+export default observer(function Chat ({
+  title,
+  description,
+  messages,
+  onSend
+}) {
   const [message, setMessage] = useState('');
-  const [chat, setChat] = useState({});
 
-  useEffect(()=> {
-    (async ()=> {
-      const res = await axios.get(`chats/${chatId}`);
-      setChat(res.data);
-    })()
-  }, [chatId]);
+  function _onSend () {
+    onSend(message)
+    setMessage('')
+  }
+
+  console.log(messages)
 
   return (
     <Col className={s.chat}>
@@ -22,10 +25,8 @@ export default observer(function Chat ({ chatId }) {
         <Row>
           <Avatar size={48} />
           <Col className={s.descUser}>
-            <Typography.Text strong={true}>
-              {chat.type === 'private' ? chat.users[0].login : chat.title}
-            </Typography.Text>
-            <Typography.Text type="secondary">last visit 4 minutes ago</Typography.Text>
+            <Typography.Text strong={true}>{title}</Typography.Text>
+            <Typography.Text type="secondary">{description}</Typography.Text>
           </Col>
         </Row>
 
@@ -47,6 +48,7 @@ export default observer(function Chat ({ chatId }) {
         <Button
           className={s.send}
           icon={<SendOutlined />}
+          onClick={_onSend}
         />
       </Row>
     </Col>

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { auth, users, chats } from 'controlers';
+import { auth, users, chats, messages } from 'controlers';
 import config from '../../config';
 
 const publicRouter = Router();
@@ -17,7 +17,7 @@ publicRouter.post('/login', (req, res)=> {
 
 // users
 publicRouter.get('/users', async (req, res)=> {
-  const data = await users.getList({ query: req.query });
+  const data = await users.getList(req.query);
   res.status(200).send(data);
 });
 publicRouter.get('/users/:userId', async (req, res)=> {
@@ -30,9 +30,23 @@ publicRouter.post('/users/contacts/add', async (req, res)=> {
 });
 
 // chats
-publicRouter.get('/chats/:chatId', async (req, res)=> {
-  const data = await chats.getItem({ chatId: req.params.chatId });
+publicRouter.get('/chat', async (req, res)=> {
+  const data = await chats.getItem(req.query);
   res.status(200).send(data);
+});
+publicRouter.post('/chats/create', async (req, res)=> {
+  const chatId = await chats.create(req.body);
+  res.status(200).send(chatId);
+});
+
+// messages
+publicRouter.get('/messages', async (req, res)=> {
+  const data = await messages.getList(req.query);
+  res.status(200).send(data);
+});
+publicRouter.post('/messages/create', async (req, res)=> {
+  const messageId = await messages.create(req.body);
+  res.status(200).send(messageId);
 });
 
 export default publicRouter;
