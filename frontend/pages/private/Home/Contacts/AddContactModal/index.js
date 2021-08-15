@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { AutoComplete, Alert, Modal } from 'antd';
-import { axios } from 'helpers';
-import { useStore } from 'helpers/hooks';
-import { observer } from 'mobx-react-lite';
+import { AutoComplete, Alert, Modal } from 'components';
+import { observer, axios } from 'helpers';
+import { useSocket } from 'helpers/hooks';
 import s from './index.scss';
 
-export default observer(function AddContactModal ({ visible, onChange }) {
-  const user = useStore('user');
+export default observer(function AddContactModal({ visible, onChange }) {
+  const user = useSocket('user');
   const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const [selectUserId, setSelectUserId] = useState('');
 
-  async function onSearch (login) {
+  async function onSearch(login) {
     if (login.length >= 3) {
       const res = await axios.get('users', { params: {
         login,
@@ -23,31 +22,28 @@ export default observer(function AddContactModal ({ visible, onChange }) {
     }
   }
 
-  function onSelect (value) {
+  function onSelect(value) {
     setInput('');
-    setSelectedUserId(value);
+    setSelectUserId(value);
   }
 
-  async function onModalOk () {
-    if (selectedUserId) {
+  async function onModalOk() {
+    if (selectUserId) {
       await axios.post('users/contacts/add', {
-        contactId: selectedUserId,
+        contactId: selectUserId,
         userId: user.data._id
       });
-
-      const res = await axios.get('get-me');
-      user.set(res.data);
     }
 
     onChange(false);
   }
 
-  function onAlertClose () {
-    setSelectedUserId('');
+  function onAlertClose() {
+    setSelectUserId('');
     setUsers([]);
   }
 
-  const selectedUser = users.find(u => u._id === selectedUserId);
+  const selectUser = users.find(u=> u._id === selectUserId);
 
   return (
     <Modal
@@ -57,23 +53,23 @@ export default observer(function AddContactModal ({ visible, onChange }) {
       cancelButtonProps={{ style: { display: 'none' } }}
       onOk={onModalOk}
       onCancel={()=> onChange(false)}
-      okText={selectedUserId ? 'Add' : 'Ok'}
+      okText={selectUserId ? 'Add' : 'Ok'}
     >
       {
-        !!selectedUserId &&
+        !!selectUserId &&
         <Alert
           closable={true}
           className={s.tagUser}
-          message={selectedUser.login}
+          message={selectUser.login}
           onClose={onAlertClose}
         />
       }
 
       {
-        !selectedUserId &&
+        !selectUserId &&
         <div className={s.inputWrapper}>
           <AutoComplete
-            options={users.map(u => ({ label: u.login, value: u._id }))}
+            options={users.map(u=> ({ label: u.login, value: u._id }))}
             className={s.autoComplete}
             placeholder="Find user"
             value={input}
@@ -84,5 +80,5 @@ export default observer(function AddContactModal ({ visible, onChange }) {
         </div>
       }
     </Modal>
-  )
+  );
 });

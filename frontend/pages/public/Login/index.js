@@ -7,19 +7,19 @@ import {
   Col,
   Divider,
   Card,
-  Typography
-} from 'antd';
+  Typography,
+  ErrorWrapper
+} from 'components';
 import { GoogleOutlined, FacebookOutlined } from '@ant-design/icons';
-import { ErrorWrapper } from 'components';
 import { useHistory } from 'react-router-dom';
 import { axios } from 'helpers';
-import { useData, useError, useStore } from 'helpers/hooks';
+import { useData, useSocket, useError } from 'helpers/hooks';
 import formSchema from './utils/joi';
 import s from './index.scss';
 
-export default function Login () {
+export default function Login() {
   const history = useHistory();
-  const user = useStore('user');
+  const user = useSocket('user');
   const [data] = useData({ email: '', password: '' });
   const [err] = useError();
 
@@ -36,7 +36,7 @@ export default function Login () {
     err.setValue('server', res.data.error);
   };
 
-  console.log(err)
+  console.log(err);
 
   return (
     <Row justify="center" align="center">

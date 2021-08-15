@@ -1,10 +1,10 @@
-import { User } from 'models';
 import mongoose from 'mongoose';
+import { User } from 'models';
 
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getList (query = {}) {
+  async getList(query = {}) {
     const _query = {};
 
     if (query.login) _query.login = { $regex: '^' + query.login, $options: 'i' };
@@ -14,15 +14,13 @@ export default {
     return users;
   },
 
-  async getItem ({ userId }) {
+  async getItem({ userId }) {
     const user = await User.findById(userId);
     return user;
   },
 
-  async addContact ({ userId, contactId }) {
-    await User.update(
-      { _id: userId },
-      { $push: { contacts: ObjectId(contactId) } }
-    );
+  async addContact({ userId, contactId }) {
+    await User.update({ _id: userId },
+      { $push: { contacts: ObjectId(contactId) } });
   }
-}
+};

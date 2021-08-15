@@ -18,15 +18,23 @@ export default {
         { $match: { _id: ObjectId(session.userId) } },
         {
           $lookup: {
-            'from': 'users',
-            'let': { 'cid': '$contacts' },
-            'pipeline': [
-              { '$match': { '$expr': { '$in': ['$_id', '$$cid'] } } }
+            from: 'users',
+            let: { cid: '$contacts' },
+            pipeline: [
+              { $match: { $expr: { $in: ['$_id', '$$cid'] } } }
             ],
-            'as':'contacts'
+            as: 'contacts'
+          }
+        },
+        {
+          $lookup: {
+            from: 'chats',
+            localField: '_id',
+            foreignField: 'userIds',
+            as: 'chats'
           }
         }
-      ])
+      ]);
 
       return user;
     }
@@ -44,9 +52,7 @@ export default {
 
       password = md5(password);
 
-      console.log(email, password)
-      const user = await User.findOne({ email, password },
-        { password: 0, confirmHash: 0, __v: 0 });
+      const user = await User.findOne({ email, password }, { confirmHash: 0 });
 
       if (!user) {
         return res.send({ error: 'Пользователь не существует!' });
@@ -96,8 +102,6 @@ export default {
         req.session.userId = userSave._id;
 
         newUser = newUser.toObject();
-        delete newUser.password;
-        delete newUser.__v;
         delete newUser.confirmHash;
         res.status(201).send(newUser);
       }

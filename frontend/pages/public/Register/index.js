@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Input,
   Button,
@@ -7,20 +7,20 @@ import {
   Col,
   Divider,
   Card,
-  Typography
-} from 'antd';
+  Typography,
+  ErrorWrapper
+} from 'components';
 import { GoogleOutlined, FacebookOutlined } from '@ant-design/icons';
-import { ErrorWrapper } from 'components';
 import { useHistory } from 'react-router-dom';
 import { axios } from 'helpers';
-import { useData, useError, useStore } from 'helpers/hooks';
+import { useData, useSocket, useError } from 'helpers/hooks';
 import formSchema from './utils/joi';
 import s from './index.scss';
 
-export default function Register () {
+export default function Register() {
   const history = useHistory();
-  const user = useStore('user');
-  const [data] = useData({ login: '', email: '', password: '' })
+  const user = useSocket('user');
+  const [data] = useData({ login: '', email: '', password: '' });
   const [err] = useError();
 
   const onSubmit = async ()=> {
@@ -91,5 +91,5 @@ export default function Register () {
         </Col>
       </Col>
     </Row>
-  )
+  );
 }

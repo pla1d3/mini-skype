@@ -1,46 +1,42 @@
-import { Chat } from 'models';
 import mongoose from 'mongoose';
+import { Chat } from 'models';
 
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getItem (query) {
-    let chat = null;
+  async getItem({ userIds, chatId }) {
+    const query = {};
+    if (userIds) query.userIds = { $in: userIds.map(userId=> ObjectId(userId)) };
+    if (chatId) query._id = ObjectId(chatId);
 
-    if (query.type === 'private') {
-      query.userIds = query.userIds.map(userId => ObjectId(userId));
+    const chats = await Chat.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: 'users',
+          let: { ids: '$userIds' },
+          pipeline: [
+            { $match: { $expr: { $in: ['$_id', '$$ids'] } } }
+          ],
+          as: 'users'
+        }
+      },
+      { $unset: ['users.password', 'users.chats', 'users.contacts'] }
+    ]);
 
-      const data = await Chat.aggregate([
-        { $match: { userIds: query.userIds } },
-        {
-          $lookup: {
-            'from': 'users',
-            'let': { 'ids': '$userIds' },
-            'pipeline': [
-              { '$match': { '$expr': { '$in': ['$_id', '$$ids'] } } }
-            ],
-            'as':'users'
-          }
-        },
-        { $unset: ['__v', 'users.password', 'users.__v', 'users.chats', 'users.contacts'] }
-      ]);
-
-      if (data.length) {
-        chat = data[0];
-        chat.toUser = chat.users.find(user => user._id !== query.fromId);
-        delete chat.users;
-      }
-    }
-
-    return chat;
+    return chats[0];
   },
 
-  async create (data) {
-    data.userIds = data.userIds.map(userId => ObjectId(userId));
+  async create({ type, userIds }) {
+    userIds = userIds.map(userId=> ObjectId(userId));
 
-    const chat = new Chat(data);
+    const chat = new Chat({ type, userIds });
     await chat.save();
 
     return chat._id;
+  },
+
+  async update() {
+    // Model.update({_id: id}, obj, {upsert: true, setDefaultsOnInsert: true}, cb);
   }
-}
+};

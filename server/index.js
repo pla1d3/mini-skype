@@ -1,16 +1,12 @@
 import express from 'express';
-import { createServer } from 'http';
 import cors from 'cors';
-import socket from 'socket.io';
-import redisAdapter from 'socket.io-redis';
 import { serverPort } from 'config';
 import routers from './routers';
 import { session } from './middlewares';
+import ws from 'express-ws';
 
 const app = express();
-const server = createServer(app);
-const io = socket(server);
-io.adapter(redisAdapter({ host: 'localhost', port: 6379 }));
+ws(app);
 
 app
   .use(session)
@@ -21,14 +17,11 @@ app
     credentials: true,
     origin: ['http://localhost:3000']
   }))
-  .use('/api/v1/', routers.public);
+  .use('/api/v1/', routers.public)
+  .use('/api/v1/', routers.private)
+  .ws('/user/', routers.ws.user)
+  .ws('/messages/', routers.ws.messages);
 
-io.on('connection', ()=> {
-  // routers
-  console.log('a user connected');
-});
-
-server.listen(serverPort, ()=> {
+app.listen(serverPort, ()=> {
   console.log(`server start on ${serverPort} port`);
-  // cronAuto.start();
 });

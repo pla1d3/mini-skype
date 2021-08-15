@@ -3,15 +3,15 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { validate, qs, axios } from 'helpers';
 import { getStore, getSocket } from '../frontend/store';
 
-export function useStore (storeName) {
+export function useStore(storeName) {
   return getStore(storeName);
 };
 
-export function useSocket (storeName) {
-  return getSocket(storeName);
+export function useSocket(storeName, params) {
+  return getSocket(storeName, params);
 };
 
-export function useData (init = {}) {
+export function useData(init = {}) {
   const [data, setData] = useState(init);
 
   function Data(data) {
@@ -34,7 +34,7 @@ export function useData (init = {}) {
   return [new Data(data), setData];
 };
 
-export function useError (data = {}) {
+export function useError(data = {}) {
   const [err, setErr] = useState(data);
 
   function Err(err) {
@@ -59,7 +59,7 @@ export function useError (data = {}) {
   return [new Err(err), setErr];
 };
 
-export function useSearch () {
+export function useSearch() {
   const history = useHistory();
   const searchParse = useMemo(()=> qs.parse(history.location.search), [history.location.search]);
   const search = { ...searchParse };
@@ -102,7 +102,7 @@ export function useSearch () {
   return new Search(search);
 };
 
-export function usePathname (start = 2) {
+export function usePathname(start = 2) {
   const { pathname } = useLocation();
   const [cutPathname, setCutPathname] = useState(getCutPathname());
 
@@ -120,7 +120,7 @@ export function usePathname (start = 2) {
   return cutPathname;
 };
 
-export function useRefCallback (callback, isCallback) {
+export function useRefCallback(callback, isCallback) {
   const ref = useRef();
 
   const refCallback = useCallback(node=> {
@@ -134,7 +134,7 @@ export function useRefCallback (callback, isCallback) {
   return resRef;
 };
 
-export function useFetch (apiUrl, fetchParams = {}, updateParams = []) {
+export function useFetch(apiUrl, fetchParams = {}, updateParams = []) {
   const [data, setData] = useState();
 
   useEffect(()=> {

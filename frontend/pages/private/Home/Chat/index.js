@@ -1,32 +1,35 @@
 import React, { useState } from 'react';
-import { Col, Button, Row, Avatar, Typography } from 'antd';
+import { Avatar, Col, Button, Row, Typography } from 'components';
 import { PhoneFilled, SendOutlined } from '@ant-design/icons';
-import { observer } from 'mobx-react-lite';
+import { useSocket } from 'helpers/hooks';
+import { observer, c, dayjs } from 'helpers';
 import s from './index.scss';
 
-export default observer(function Chat ({
-  title,
-  description,
-  messages,
-  onSend
-}) {
+export default observer(function Chat({ chat, onSend }) {
+  const user = useSocket('user');
+  const messages = useSocket('messages', { chatId: chat._id });
   const [message, setMessage] = useState('');
 
-  function _onSend () {
-    onSend(message)
-    setMessage('')
+  if (chat.type === 'private') {
+    const toUser = chat.users.find(u=> u._id !== user.data._id);
+    chat.title = toUser.login;
+    chat.avatarUrl = toUser._id;
+    chat.description = 'last visit 4 minutes ago';
   }
 
-  console.log(messages)
+  function _onSend() {
+    setMessage('');
+    onSend(message);
+  }
 
   return (
     <Col className={s.chat}>
       <Row className={s.header}>
         <Row>
-          <Avatar size={48} />
+          <Avatar src={chat.avatarUrl} size={48} />
           <Col className={s.descUser}>
-            <Typography.Text strong={true}>{title}</Typography.Text>
-            <Typography.Text type="secondary">{description}</Typography.Text>
+            <Typography.Text strong={true}>{chat.title}</Typography.Text>
+            <Typography.Text type="secondary">{chat.description}</Typography.Text>
           </Col>
         </Row>
 
@@ -36,13 +39,33 @@ export default observer(function Chat ({
       </Row>
 
       <Col className={s.wrapper}>
-        <Col>{`message`}</Col>
+        {
+          messages.data?.map(message=> (
+            <Row
+              className={c(s.messageCase, {
+                [s.messageCaseRight]: message.user._id !== user.data._id
+              })}
+            >
+              <Avatar src={message.user._id} size='large' />
+              <Col className={s.messageContent}>
+                <Row>
+                  <Col>{message.user.login}</Col>
+                  <Col className={s.messageTime}>
+                    {dayjs(message.createdAt).format('DD.MM.YYYY HH:mm')}
+                  </Col>
+                </Row>
+                <Col className={s.messageText}>{message.text}</Col>
+              </Col>
+            </Row>
+          ))
+        }
       </Col>
 
       <Row className={s.inputWrapper}>
         <input
           className={s.inputMessage}
           value={message}
+          placeholder="Write new message..."
           onChange={e=> setMessage(e.target.value)}
         />
         <Button
@@ -52,5 +75,5 @@ export default observer(function Chat ({
         />
       </Row>
     </Col>
-  )
-})
+  );
+});

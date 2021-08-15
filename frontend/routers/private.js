@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { Route, useLocation, Redirect } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
-import { Layout } from 'antd';
-import { axios } from 'helpers';
-import { useStore } from 'helpers/hooks';
+import { Layout } from 'components';
+import { observer, axios } from 'helpers';
+import { useSocket } from 'helpers/hooks';
 import s from '../index.scss';
 
 const { Content } = Layout;
@@ -14,7 +13,7 @@ const PublicRoute = observer(({
   component
 })=> {
   const location = useLocation();
-  const user = useStore('user');
+  const user = useSocket('user');
 
   useEffect(()=> {
     document.documentElement.scrollTop = 0;
@@ -40,7 +39,6 @@ const PublicRoute = observer(({
       </Content>
     </Layout>
   );
-
 });
 
 export default PublicRoute;

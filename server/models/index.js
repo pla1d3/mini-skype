@@ -2,11 +2,8 @@ import bluebird from 'bluebird';
 import mongoose from 'mongoose';
 import { mongoUrl } from 'config';
 
-mongoose.connect(mongoUrl, { useNewUrlParser: true,
-  useUnifiedTopology: true });
-mongoose.connection.on('open', ()=> {
-  console.log('mongo connected');
-});
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connection.on('open', ()=> console.log('mongo connected'));
 mongoose.connection.on('error', err=> {
   console.log('mongo error');
   console.error(err);
