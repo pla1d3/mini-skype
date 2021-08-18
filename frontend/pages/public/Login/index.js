@@ -36,8 +36,6 @@ export default function Login() {
     err.setValue('server', res.data.error);
   };
 
-  console.log(err);
-
   return (
     <Row justify="center" align="center">
       <Col>

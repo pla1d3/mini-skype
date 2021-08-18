@@ -4,13 +4,12 @@ import { User } from 'models';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getList(query = {}) {
-    const _query = {};
+  async getList({ login, excludeIds }) {
+    const query = {};
+    if (login) query.login = { $regex: '^' + login, $options: 'i' };
+    if (excludeIds) query._id = { $ne: excludeIds };
 
-    if (query.login) _query.login = { $regex: '^' + query.login, $options: 'i' };
-    if (query.excludeIds) _query._id = { $ne: query.excludeIds };
-
-    const users = await User.find(_query).limit(10);
+    const users = await User.find(query).limit(10);
     return users;
   },
 
@@ -21,6 +20,7 @@ export default {
 
   async addContact({ userId, contactId }) {
     await User.update({ _id: userId },
-      { $push: { contacts: ObjectId(contactId) } });
+      { $push: { contacts: ObjectId(contactId) }
+      });
   }
 };

@@ -12,34 +12,22 @@ import fs from 'fs';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getMe(session) {
-    if (session.isAuth) {
-      const [user] = await User.aggregate([
-        { $match: { _id: ObjectId(session.userId) } },
-        {
-          $lookup: {
-            from: 'users',
-            let: { cid: '$contacts' },
-            pipeline: [
-              { $match: { $expr: { $in: ['$_id', '$$cid'] } } }
-            ],
-            as: 'contacts'
-          }
-        },
-        {
-          $lookup: {
-            from: 'chats',
-            localField: '_id',
-            foreignField: 'userIds',
-            as: 'chats'
-          }
+  async getMe({ userId }) {
+    const [user] = await User.aggregate([
+      { $match: { _id: ObjectId(userId) } },
+      {
+        $lookup: {
+          from: 'users',
+          let: { cid: '$contacts' },
+          pipeline: [
+            { $match: { $expr: { $in: ['$_id', '$$cid'] } } }
+          ],
+          as: 'contacts'
         }
-      ]);
+      }
+    ]);
 
-      return user;
-    }
-
-    return false;
+    return user;
   },
 
   async login(req, res) {

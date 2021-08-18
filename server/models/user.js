@@ -11,8 +11,7 @@ const userSchema = new Schema({
   name: String,
   avatarUrl: String,
   lastVisit: Number,
-  contacts: [],
-  chats: []
+  contacts: []
 }, {
   versionKey: false,
   timestamps: { createdAt: true, updatedAt: false }

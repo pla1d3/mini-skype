@@ -12,11 +12,13 @@ export default observer(function AddContactModal({ visible, onChange }) {
 
   async function onSearch(login) {
     if (login.length >= 3) {
-      const res = await axios.get('users', { params: {
-        login,
-        excludeIds: [user.data._id, ...user.data.contacts]
-      } });
-      setUsers(res.data);
+      const users = await axios.get('users', {
+        params: {
+          login,
+          excludeIds: [user.data._id, ...user.data.contacts]
+        }
+      });
+      setUsers(users.data);
     } else {
       setUsers([]);
     }
@@ -33,6 +35,9 @@ export default observer(function AddContactModal({ visible, onChange }) {
         contactId: selectUserId,
         userId: user.data._id
       });
+
+      const res = await axios.get('/get-me');
+      user.set(res.data);
     }
 
     onChange(false);

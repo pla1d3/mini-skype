@@ -20,15 +20,12 @@ const PublicRoute = observer(({
   }, [location.pathname]);
 
   useEffect(()=> {
-    (async ()=> {
-      try {
-        const res = await axios.get('/get-me');
-        user.set(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    })();
+    axios.get('/get-me')
+      .then(res=> user.set(res.data))
+      .catch(()=> user.set(false));
   }, []);
+
+  console.log(user.data);
 
   if (user.data === null) return null;
   if (user.data === false) return <Redirect to="/login" />;

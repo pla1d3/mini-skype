@@ -20,14 +20,9 @@ const PublicRoute = observer(({
   }, [location.pathname]);
 
   useEffect(()=> {
-    (async ()=> {
-      try {
-        const res = await axios.get('/get-me');
-        user.set(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    })();
+    axios.get('/get-me')
+      .then(res=> user.set(res.data))
+      .catch(()=> user.set(false));
   }, []);
 
   if (user.data === null) return null;

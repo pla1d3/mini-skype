@@ -1,0 +1,19 @@
+.chat {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #1b1b1b;
+}
+
+.chatCase {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+}
+
+.chats {
+  margin-top: -16px;
+}
+
+.chatActive {
+  background-color: #1b1b1b;
+}

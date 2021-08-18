@@ -29,7 +29,7 @@ export default function Register() {
     const res = await axios.post('/reg', data);
     if (!res.data.error) {
       user.set(res.data);
-      history.push('/dashboard');
+      history.push('/');
       return;
     }
 

@@ -21,8 +21,8 @@ export default observer(function Contacts({ value, onSelect }) {
           user.data.contacts.map(user=> (
             <Row
               key={user._id}
-              className={c([s.row, { [s.rowActive]: value === user._id }])}
-              onClick={()=> onSelect(user._id)}
+              className={c([s.row, { [s.rowActive]: value?._id === user._id }])}
+              onClick={()=> onSelect(user)}
             >
               <Avatar src={user._id} size={48} />
               <Col className={s.desc}>

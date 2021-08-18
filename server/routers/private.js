@@ -1,15 +1,26 @@
 import { Router } from 'express';
 import * as controlers from 'controlers';
+import { isAuth } from '../middlewares';
 
 const privateRouter = Router();
+privateRouter.use(isAuth);
 
 // users
+privateRouter.get('/get-me', async (req, res)=> {
+  const user = await controlers.auth.getMe({
+    userId: req.session.userId
+  });
+  return res.status(200).send(user);
+});
 privateRouter.get('/users', async (req, res)=> {
   const users = await controlers.users.getList(req.query);
   res.status(200).send(users);
 });
 privateRouter.get('/users/:userId', async (req, res)=> {
-  const user = await controlers.users.getItem({ userId: req.params.userId });
+  const user = await controlers.users.getItem({
+    ...req.params,
+    ...req.query
+  });
   res.status(200).send(user);
 });
 privateRouter.post('/users/contacts/add', async (req, res)=> {
@@ -18,8 +29,15 @@ privateRouter.post('/users/contacts/add', async (req, res)=> {
 });
 
 // chats
-privateRouter.get('/chat', async (req, res)=> {
-  const chat = await controlers.chats.getItem(req.query);
+privateRouter.get('/chats', async (req, res)=> {
+  const chats = await controlers.chats.getList(req.query);
+  res.status(200).send(chats);
+});
+privateRouter.get('/chats/:chatId', async (req, res)=> {
+  const chat = await controlers.chats.getItem({
+    ...req.params,
+    ...req.query
+  });
   res.status(200).send(chat);
 });
 privateRouter.post('/chats/create', async (req, res)=> {

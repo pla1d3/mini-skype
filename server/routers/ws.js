@@ -2,17 +2,23 @@ import redis from 'redis';
 import * as controlers from 'controlers';
 
 export default {
-  // chats last messages,
+  // chats lastMessage
   // chats count unread messages
-  user: (client, req)=> {
-    const rc = redis.createClient();
-    const subscribe = rc.subscribe(`user-${req.session.userId}`);
+  chats: (client, req)=> {
+    const { userId } = req.query;
 
-    subscribe.on('message', (channel, message)=> client.send(message));
+    const sub = redis.createClient();
+    sub.subscribe(`chats-${userId}`);
+
+    sub.on('message', (channel, message)=> {
+      if (channel === `chats-${userId}`) {
+        client.send(message);
+      }
+    });
 
     client.on('close', ()=> {
       console.log('client close');
-      subscribe.quit();
+      sub.quit();
     });
   },
 
@@ -24,7 +30,6 @@ export default {
 
     sub.on('message', (channel, message)=> {
       if (channel === `messages-${chatId}`) {
-        console.log('client.send');
         client.send(message);
       }
     });
@@ -34,9 +39,8 @@ export default {
       sub.quit();
     });
 
-    const pub = redis.createClient();
     const messages = await controlers.messages.getList({ chatId });
-    pub.publish(`messages-${chatId}`, JSON.stringify({
+    client.send(JSON.stringify({
       type: 'set',
       data: messages
     }));

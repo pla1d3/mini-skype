@@ -4,10 +4,10 @@ import { Chat } from 'models';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getItem({ userIds, chatId }) {
+  async getList({ chatId, userIds }) {
     const query = {};
-    if (userIds) query.userIds = { $in: userIds.map(userId=> ObjectId(userId)) };
     if (chatId) query._id = ObjectId(chatId);
+    if (userIds) query.userIds = { $in: userIds.map(userId=> ObjectId(userId)) };
 
     const chats = await Chat.aggregate([
       { $match: query },
@@ -21,9 +21,14 @@ export default {
           as: 'users'
         }
       },
-      { $unset: ['users.password', 'users.chats', 'users.contacts'] }
+      { $unset: ['users.chats', 'users.contacts'] }
     ]);
 
+    return chats;
+  },
+
+  async getItem({ chatId, userIds }) {
+    const chats = await this.getList({ chatId, userIds });
     return chats[0];
   },
 

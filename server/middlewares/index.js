@@ -1,2 +1,2 @@
 export { default as session } from './session';
-export { default as checkAuth } from './auth';
+export { default as isAuth } from './isAuth';
