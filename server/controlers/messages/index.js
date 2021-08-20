@@ -1,13 +1,16 @@
 import mongoose from 'mongoose';
 import redis from 'redis';
-import { Message, User } from 'models';
+import { Message, Chat } from 'models';
+import * as controlers from 'controlers';
 
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getList({ chatId }) {
+  async getList({ messageId, userId, chatId }) {
     const query = {};
+    if (messageId) query._id = ObjectId(messageId);
     if (chatId) query.chatId = ObjectId(chatId);
+    if (userId) query.userId = ObjectId(userId);
 
     const messages = await Message
       .aggregate([
@@ -20,24 +23,40 @@ export default {
             as: 'user'
           }
         },
-        { $unwind: '$user' }
+        { $unwind: '$user' },
+        { $unset: ['user.contactIds'] }
       ])
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .limit(10);
 
     return messages;
   },
 
   async create(data) {
-    const message = new Message(data);
-    await message.save();
+    const newMessage = new Message(data);
+    await newMessage.save();
 
-    const [user] = await User.find({ _id: ObjectId(data.userId) });
-
+    // push to WebSocket
     const pub = redis.createClient();
+
+    const messages = await this.getList({ chatId: data.chatId });
     pub.publish(`messages-${data.chatId}`, JSON.stringify({
-      type: 'push',
-      data: { ...message._doc, user }
+      type: 'set',
+      data: messages
     }));
+
+    const chat = await Chat.findById(data.chatId);
+    await controlers.chats.edit({
+      chatId: data.chatId,
+      unreadIds: chat.userIds
+    });
+
+    for (let i = 0; i < chat.userIds.length; i++) {
+      const userId = chat.userIds[i];
+      const chats = await controlers.chats.getList({ userId });
+      pub.publish(`chats-${userId}`, JSON.stringify({ type: 'set', data: chats }));
+    }
+
+    pub.quit();
   }
 };

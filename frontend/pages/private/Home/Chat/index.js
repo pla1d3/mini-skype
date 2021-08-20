@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Col, Button, Row, Typography, Markdown } from 'components';
 import { PhoneFilled, SendOutlined } from '@ant-design/icons';
-import { useSocket } from 'helpers/hooks';
-import { observer, c, dayjs } from 'helpers';
+import { useStore, useSocket } from 'helpers/hooks';
+import { axios, observer, c, dayjs } from 'helpers';
 import s from './index.scss';
 
 const Chat = observer(({ chat, messages, onSend })=> {
-  const user = useSocket('user');
+  const user = useStore('user');
   const [message, setMessage] = useState('');
 
   function _onSend() {
@@ -35,7 +35,7 @@ const Chat = observer(({ chat, messages, onSend })=> {
 
       <Col className={s.wrapper}>
         {
-          messages.data?.map(message=> (
+          messages.data?.reverse().map(message=> (
             <Row
               key={message._id}
               className={c(s.messageCase, {
@@ -82,16 +82,27 @@ const SocketChat = observer(({ chat, onSend })=> {
 });
 
 export default observer(function ChatContainer({ chat, onSend }) {
-  const user = useSocket('user');
+  const user = useStore('user');
+
+  useEffect(()=> {
+    (async ()=> {
+      const unreadIndex = chat.unreadIds.findIndex(userId=> userId === user.data._id);
+      if (unreadIndex !== -1) {
+        chat.unreadIds.splice(unreadIndex, 1);
+        await axios.post(`chats/${chat._id}/edit`, chat);
+      }
+    })();
+  }, [JSON.stringify(chat)]);
 
   if (chat.type === 'private') {
+    const _chat = { ...chat };
     const toUser = chat.users.find(u=> u._id !== user.data._id);
-    chat.title = toUser.login;
-    chat.avatarUrl = toUser._id;
-    chat.description = 'last visit 4 minutes ago';
+    _chat.title = toUser.login;
+    _chat.avatarUrl = toUser._id;
+    _chat.description = 'last visit 4 minutes ago';
 
     if (chat._id === 'draft') {
-      return <Chat messages={[]} chat={chat} onSend={onSend} />;
+      return <Chat messages={[]} chat={_chat} onSend={onSend} />;
     }
 
     return <SocketChat chat={chat} onSend={onSend} />;

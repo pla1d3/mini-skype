@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Row, Col, Typography, Button, Avatar } from 'components';
-import { useSocket } from 'helpers/hooks';
+import { useStore } from 'helpers/hooks';
 import { observer, c } from 'helpers';
 import AddContactModal from './AddContactModal';
 import s from './index.scss';
 
 export default observer(function Contacts({ value, onSelect }) {
-  const user = useSocket('user');
+  const user = useStore('user');
   const [modalVisible, setModalVisible] = useState(false);
 
   return (

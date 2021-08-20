@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Route, useLocation } from 'react-router-dom';
 import { Layout } from 'components';
 import { observer, axios } from 'helpers';
-import { useSocket } from 'helpers/hooks';
+import { useStore } from 'helpers/hooks';
 import s from '../index.scss';
 
 const { Content } = Layout;
@@ -13,7 +13,7 @@ const PublicRoute = observer(({
   component
 })=> {
   const location = useLocation();
-  const user = useSocket('user');
+  const user = useStore('user');
 
   useEffect(()=> {
     document.documentElement.scrollTop = 0;

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { AutoComplete, Alert, Modal } from 'components';
 import { observer, axios } from 'helpers';
-import { useSocket } from 'helpers/hooks';
+import { useStore } from 'helpers/hooks';
 import s from './index.scss';
 
 export default observer(function AddContactModal({ visible, onChange }) {
-  const user = useSocket('user');
+  const user = useStore('user');
   const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
   const [selectUserId, setSelectUserId] = useState('');
@@ -15,7 +15,10 @@ export default observer(function AddContactModal({ visible, onChange }) {
       const users = await axios.get('users', {
         params: {
           login,
-          excludeIds: [user.data._id, ...user.data.contacts]
+          excludeIds: [
+            user.data._id,
+            ...user.data.contactIds
+          ]
         }
       });
       setUsers(users.data);

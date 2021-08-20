@@ -19,7 +19,7 @@ app
   }))
   .use('/api/v1/', routers.public)
   .use('/api/v1/', routers.private)
-  .ws('/user/', routers.ws.user)
+  .ws('/chats/', routers.ws.chats)
   .ws('/messages/', routers.ws.messages);
 
 app.listen(serverPort, ()=> {

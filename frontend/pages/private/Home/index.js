@@ -1,66 +1,53 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Tabs, Col, Typography } from 'components';
 import { observer, axios } from 'helpers';
-import { useSocket } from 'helpers/hooks';
+import { useStore, useSocket } from 'helpers/hooks';
 import { Contacts, Chats } from './tabs';
 import Chat from './Chat';
 import s from './index.scss';
 
 export default observer(function Home() {
-  const user = useSocket('user');
+  const user = useStore('user');
+  const chats = useSocket('chats', { userId: user.data._id });
   const [slide, setSlide] = useState('chats');
   const [selectUser, setSelectUser] = useState(null);
-  const [selectChat, setSelectChat] = useState(null);
+  const [selectChatId, setSelectChatId] = useState('');
 
-  async function onSelectUser(selectUser) {
-    setSelectUser(selectUser);
-
-    /*
-      const [chat] = await api.chats.get({
-        params: {
-          userIds: [user.data._id, selectUser._id],
-          type: 'private'
-        }
-      })
-    */
-    const chats = await axios.get('chats', {
-      params: {
-        userIds: [user.data._id, selectUser._id],
-        type: 'private'
+  const selectChat = useMemo(()=> {
+    const chat = chats?.data?.find(chat=> {
+      if (selectChatId) return chat._id === selectChatId;
+      if (selectUser) {
+        return chat.users.find(u=> u._id === user.data._id) &&
+          chat.users.find(u=> u._id === selectUser._id);
       }
     });
 
-    if (chats.data.length) return setSelectChat(chats.data[0]);
-    setSelectChat({
-      _id: 'draft',
-      type: 'private',
-      users: [user.data, selectUser]
-    });
-  }
+    if (chat) return chat;
+    if (!chat && selectUser) {
+      return {
+        _id: 'draft',
+        type: 'private',
+        users: [user.data, selectUser]
+      };
+    }
+    return null;
+  }, [
+    selectChatId,
+    selectUser,
+    JSON.stringify(chats)
+  ]);
 
   async function onSendMessage(text) {
-    let _selectChat = selectChat;
-
     if (selectChat._id === 'draft') {
-      /*
-        const chatId = await api.chats.create({
-          userIds: [user.data._id, selectUser._id],
-          type: 'private'
-        })
-      */
-      const newChat = await axios.post('chats/create', {
+      await axios.post('chats/create', {
         userIds: [user.data._id, selectUser._id],
         type: 'private'
       });
-
-      const chat = await axios.get(`chats/${newChat.data}`);
-      _selectChat = chat.data;
-      setSelectChat(_selectChat);
     }
 
     await axios.post('messages/create', {
       userId: user.data._id,
-      chatId: _selectChat._id,
+      chatId: selectChat._id,
       text
     });
   }
@@ -86,7 +73,7 @@ export default observer(function Home() {
           >
             <Contacts
               value={selectUser}
-              onSelect={onSelectUser}
+              onSelect={setSelectUser}
             />
           </Tabs.TabPane>
 
@@ -95,8 +82,9 @@ export default observer(function Home() {
             tab={<div className={s.tab}>Chats</div>}
           >
             <Chats
-              value={selectChat}
-              onSelect={setSelectChat}
+              chats={chats.data}
+              value={selectChatId}
+              onSelect={setSelectChatId}
             />
           </Tabs.TabPane>
 

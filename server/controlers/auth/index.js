@@ -18,7 +18,7 @@ export default {
       {
         $lookup: {
           from: 'users',
-          let: { cid: '$contacts' },
+          let: { cid: '$contactIds' },
           pipeline: [
             { $match: { $expr: { $in: ['$_id', '$$cid'] } } }
           ],

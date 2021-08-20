@@ -8,7 +8,9 @@ export function useStore(storeName) {
 };
 
 export function useSocket(storeName, params) {
-  return getSocket(storeName, params);
+  return useMemo(()=> {
+    return getSocket(storeName, params);
+  }, [JSON.stringify(params)]);
 };
 
 export function useData(init = {}) {

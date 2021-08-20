@@ -8,10 +8,10 @@ const userSchema = new Schema({
     require: true,
     select: false
   },
-  name: String,
-  avatarUrl: String,
-  lastVisit: Number,
-  contacts: []
+  lastActiveAt: { type: Date, require: true },
+  name: { type: String, require: true },
+  contactIds: { type: [Schema.ObjectId] },
+  avatarUrl: String
 }, {
   versionKey: false,
   timestamps: { createdAt: true, updatedAt: false }

@@ -18,38 +18,37 @@ export const getStore = storeName=> {
 };
 
 export const getSocket = (storeName, params = {})=> {
-  if (!store[storeName]) {
-    store[storeName] = {
-      data: null,
-      set: function(data) {
-        this.data = data;
-      }
-    };
+  if (store[storeName]?.ws) store[storeName].ws.close();
 
-    const url = new URL(`ws://localhost:9000/${storeName}`);
-    url.search = qs.stringify(params);
+  const url = new URL(`ws://localhost:9000/${storeName}`);
+  url.search = qs.stringify(params);
 
-    const ws = new WebSocket(url.toString());
-    ws.onopen = ()=> console.log(`ws ${storeName} open`);
-    ws.onclose = ()=> console.log(`ws ${storeName} close`);
-    ws.onmessage = e=> {
-      const message = JSON.parse(e.data);
+  store[storeName] = {
+    data: null,
+    set: function(data) {
+      this.data = data;
+    },
+    ws: new WebSocket(url.toString())
+  };
 
-      if (message.type === 'set') {
-        store[storeName].data = message.data;
-      }
+  store[storeName].ws.onopen = ()=> console.log(`ws ${storeName} open`);
+  store[storeName].ws.onclose = ()=> console.log(`ws ${storeName} close`);
+  store[storeName].ws.onmessage = e=> {
+    const message = JSON.parse(e.data);
 
-      if (message.type === 'push') {
-        const array = message.path
-          ? _get(store[storeName].data, message.path)
-          : store[storeName].data;
+    if (message.type === 'set') {
+      store[storeName].data = message.data;
+    }
 
-        array.push(message.data);
-        store[storeName].data = _clone(store[storeName].data);
-      }
-    };
+    if (message.type === 'push') {
+      const array = message.path
+        ? _get(store[storeName].data, message.path)
+        : store[storeName].data;
 
-    store[storeName].ws = ws;
-  }
+      array.push(message.data);
+      store[storeName].data = _clone(store[storeName].data);
+    }
+  };
+
   return store[storeName];
 };

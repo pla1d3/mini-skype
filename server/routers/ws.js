@@ -2,9 +2,8 @@ import redis from 'redis';
 import * as controlers from 'controlers';
 
 export default {
-  // chats lastMessage
-  // chats count unread messages
-  chats: (client, req)=> {
+  chats: async (client, req)=> {
+    console.log('client connected');
     const { userId } = req.query;
 
     const sub = redis.createClient();
@@ -20,9 +19,16 @@ export default {
       console.log('client close');
       sub.quit();
     });
+
+    const chats = await controlers.chats.getList({ userId });
+    client.send(JSON.stringify({
+      type: 'set',
+      data: chats
+    }));
   },
 
   messages: async (client, req)=> {
+    console.log('client join in chat');
     const { chatId } = req.query;
 
     const sub = redis.createClient();

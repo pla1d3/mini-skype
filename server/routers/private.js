@@ -45,7 +45,10 @@ privateRouter.post('/chats/create', async (req, res)=> {
   res.status(200).send(chatId);
 });
 privateRouter.post('/chats/:chatId/edit', async (req, res)=> {
-  await controlers.chats.edit(req.body);
+  await controlers.chats.edit({
+    ...req.params,
+    ...req.body
+  });
   res.status(200).send('ok');
 });
 

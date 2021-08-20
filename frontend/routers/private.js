@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Route, useLocation, Redirect } from 'react-router-dom';
 import { Layout } from 'components';
 import { observer, axios } from 'helpers';
-import { useSocket } from 'helpers/hooks';
+import { useStore } from 'helpers/hooks';
 import s from '../index.scss';
 
 const { Content } = Layout;
@@ -13,7 +13,7 @@ const PublicRoute = observer(({
   component
 })=> {
   const location = useLocation();
-  const user = useSocket('user');
+  const user = useStore('user');
 
   useEffect(()=> {
     document.documentElement.scrollTop = 0;
@@ -24,8 +24,6 @@ const PublicRoute = observer(({
       .then(res=> user.set(res.data))
       .catch(()=> user.set(false));
   }, []);
-
-  console.log(user.data);
 
   if (user.data === null) return null;
   if (user.data === false) return <Redirect to="/login" />;

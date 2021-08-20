@@ -4,10 +4,11 @@ import { Chat } from 'models';
 const ObjectId = mongoose.Types.ObjectId;
 
 export default {
-  async getList({ chatId, userIds }) {
+  async getList({ userId, chatId, userIds }) {
     const query = {};
     if (chatId) query._id = ObjectId(chatId);
-    if (userIds) query.userIds = { $in: userIds.map(userId=> ObjectId(userId)) };
+    if (userId) query.userIds = { $in: [ObjectId(userId)] };
+    if (userIds) query.userIds = { $all: userIds.map(userId=> ObjectId(userId)) };
 
     const chats = await Chat.aggregate([
       { $match: query },
@@ -21,7 +22,18 @@ export default {
           as: 'users'
         }
       },
-      { $unset: ['users.chats', 'users.contacts'] }
+      {
+        $lookup: {
+          from: 'messages',
+          localField: '_id',
+          foreignField: 'chatId',
+          as: 'messages'
+        }
+      },
+      { $sort: { 'messages.createdAt': -1 } },
+      { $addFields: { lastMessage: { $last: '$messages' } } },
+      { $unset: ['messages', 'userIds', 'users.contactIds'] },
+      { $sort: { 'lastMessage.createdAt': -1 } }
     ]);
 
     return chats;
@@ -41,7 +53,8 @@ export default {
     return chat._id;
   },
 
-  async update() {
-    // Model.update({_id: id}, obj, {upsert: true, setDefaultsOnInsert: true}, cb);
+  async edit({ chatId, ...data }) {
+    data.unreadIds = data.unreadIds.map(userId=> ObjectId(userId));
+    await Chat.update({ _id: chatId }, data);
   }
 };

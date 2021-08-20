@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   margin-left: 16px;
+  flex: 1;
 }
 
 .chats {
@@ -16,4 +17,13 @@
 
 .chatActive {
   background-color: #1b1b1b;
+}
+
+.newMessages {
+  background-color: #177ddc;
+  font-size: 10px;
+  padding: 2px 12px;
+  border-radius: 16px;
+  position: absolute;
+  right: 0;
 }

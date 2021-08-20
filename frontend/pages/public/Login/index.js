@@ -13,13 +13,13 @@ import {
 import { GoogleOutlined, FacebookOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { axios } from 'helpers';
-import { useData, useSocket, useError } from 'helpers/hooks';
+import { useData, useStore, useError } from 'helpers/hooks';
 import formSchema from './utils/joi';
 import s from './index.scss';
 
 export default function Login() {
   const history = useHistory();
-  const user = useSocket('user');
+  const user = useStore('user');
   const [data] = useData({ email: '', password: '' });
   const [err] = useError();
 

@@ -1,11 +1,13 @@
 import { Schema, connection } from 'mongoose';
 
 const chatSchema = new Schema({
-  userIds: [],
+  type: String,
   title: String,
-  type: String
+  userIds: [],
+  unreadIds: []
 }, {
-  versionKey: false
+  versionKey: false,
+  timestamps: { createdAt: true, updatedAt: false }
 });
 
 export default connection.model('chat', chatSchema);

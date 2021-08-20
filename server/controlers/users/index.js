@@ -7,7 +7,7 @@ export default {
   async getList({ login, excludeIds }) {
     const query = {};
     if (login) query.login = { $regex: '^' + login, $options: 'i' };
-    if (excludeIds) query._id = { $ne: excludeIds };
+    if (excludeIds) query._id = { $nin: excludeIds.map(userId=> ObjectId(userId)) };
 
     const users = await User.find(query).limit(10);
     return users;
@@ -20,7 +20,7 @@ export default {
 
   async addContact({ userId, contactId }) {
     await User.update({ _id: userId },
-      { $push: { contacts: ObjectId(contactId) }
+      { $push: { contactIds: ObjectId(contactId) }
       });
   }
 };
