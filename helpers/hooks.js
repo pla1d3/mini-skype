@@ -1,17 +1,15 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { validate, qs, axios } from 'helpers';
+import _memoize from 'lodash/memoize';
 import { getStore, getSocket } from '../frontend/store';
 
 export function useStore(storeName) {
   return getStore(storeName);
 };
 
-export function useSocket(storeName, params) {
-  return useMemo(()=> {
-    return getSocket(storeName, params);
-  }, [JSON.stringify(params)]);
-};
+export const useSocket = _memoize((storeName, params)=> getSocket(storeName, params),
+  (storeName, params)=> JSON.stringify(params));
 
 export function useData(init = {}) {
   const [data, setData] = useState(init);

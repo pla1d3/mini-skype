@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Route, useLocation, Redirect } from 'react-router-dom';
-import { Layout } from 'components';
+import { Layout, ModalProvider } from 'components';
 import { observer, axios } from 'helpers';
 import { useStore } from 'helpers/hooks';
 import s from '../index.scss';
@@ -32,6 +32,7 @@ const PublicRoute = observer(({
       <Content>
         <Route exact={exact} path={path} component={component} />
       </Content>
+      <ModalProvider />
     </Layout>
   );
 });

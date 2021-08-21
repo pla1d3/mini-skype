@@ -31,10 +31,12 @@ export const getSocket = (storeName, params = {})=> {
     ws: new WebSocket(url.toString())
   };
 
-  store[storeName].ws.onopen = ()=> console.log(`ws ${storeName} open`);
-  store[storeName].ws.onclose = ()=> console.log(`ws ${storeName} close`);
-  store[storeName].ws.onmessage = e=> {
+  store[storeName].ws.addEventListener('open', ()=> console.log(`ws ${storeName} open`));
+  store[storeName].ws.addEventListener('close', ()=> console.log(`ws ${storeName} close`));
+  store[storeName].ws.addEventListener('message', e=> {
     const message = JSON.parse(e.data);
+
+    if (message.isMeta) return;
 
     if (message.type === 'set') {
       store[storeName].data = message.data;
@@ -48,7 +50,7 @@ export const getSocket = (storeName, params = {})=> {
       array.push(message.data);
       store[storeName].data = _clone(store[storeName].data);
     }
-  };
+  });
 
   return store[storeName];
 };

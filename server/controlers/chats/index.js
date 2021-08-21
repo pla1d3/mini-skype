@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
+import redis from 'redis';
 import { Chat } from 'models';
+import * as controlers from 'controlers';
 
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -53,8 +55,21 @@ export default {
     return chat._id;
   },
 
-  async edit({ chatId, ...data }) {
-    data.unreadIds = data.unreadIds.map(userId=> ObjectId(userId));
-    await Chat.update({ _id: chatId }, data);
+  async edit({ userId, chatId, ...data }) {
+    const query = {};
+    if (chatId) query._id = chatId;
+    if (userId) query.userIds = { $in: [ObjectId(userId)] };
+
+    if (data.unreadIds) data.unreadIds = data.unreadIds.map(userId=> ObjectId(userId));
+    if (data.callIds) data.callIds = data.callIds.map(userId=> ObjectId(userId));
+    const chat = await Chat.findOneAndUpdate(query, data);
+
+    const pub = redis.createClient();
+    for (let i = 0; i < chat.userIds.length; i++) {
+      const userId = chat.userIds[i];
+      const chats = await controlers.chats.getList({ userId });
+      pub.publish(`chats-${userId}`, JSON.stringify({ type: 'set', data: chats }));
+    }
+    pub.quit();
   }
 };

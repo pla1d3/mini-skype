@@ -5,7 +5,14 @@ import { useStore, useSocket } from 'helpers/hooks';
 import { axios, observer, c, dayjs } from 'helpers';
 import s from './index.scss';
 
-const Chat = observer(({ chat, messages, onSend })=> {
+import Call from './Call';
+
+const Chat = observer(({
+  chat,
+  messages,
+  peerConnection,
+  onSend
+})=> {
   const user = useStore('user');
   const [message, setMessage] = useState('');
 
@@ -14,8 +21,22 @@ const Chat = observer(({ chat, messages, onSend })=> {
     setMessage('');
   }
 
+  async function onCall() {
+    chat.callIds.push(user.data._id);
+    await axios.post(`chats/${chat._id}/edit`, {
+      callIds: chat.callIds
+    });
+  }
+
   return (
     <Col className={s.chat}>
+      {
+        chat?.callIds?.find(userId=> userId === user.data._id) &&
+        <Call
+          toUser={chat.toUser}
+          peerConnection={peerConnection}
+        />
+      }
       <Row className={s.header}>
         <Row>
           <Avatar src={chat.avatarUrl} size={48} />
@@ -27,7 +48,7 @@ const Chat = observer(({ chat, messages, onSend })=> {
 
         <Col
           className={s.phone}
-          onClick={()=> alert('soon')}
+          onClick={onCall}
         >
           <PhoneFilled className={s.iconPhone} />
         </Col>
@@ -76,12 +97,21 @@ const Chat = observer(({ chat, messages, onSend })=> {
   );
 });
 
-const SocketChat = observer(({ chat, onSend })=> {
+const SocketChat = observer(({ chat, peerConnection, onSend })=> {
   const messages = useSocket('messages', { chatId: chat._id });
-  return <Chat messages={messages} chat={chat} onSend={onSend} />;
+  return <Chat
+    messages={messages}
+    peerConnection={peerConnection}
+    chat={chat}
+    onSend={onSend}
+  />;
 });
 
-export default observer(function ChatContainer({ chat, onSend }) {
+export default observer(function ChatContainer({
+  chat,
+  peerConnection,
+  onSend
+}) {
   const user = useStore('user');
 
   useEffect(()=> {
@@ -97,14 +127,24 @@ export default observer(function ChatContainer({ chat, onSend }) {
   if (chat.type === 'private') {
     const _chat = { ...chat };
     const toUser = chat.users.find(u=> u._id !== user.data._id);
+    _chat.toUser = toUser;
     _chat.title = toUser.login;
     _chat.avatarUrl = toUser._id;
     _chat.description = 'last visit 4 minutes ago';
 
     if (chat._id === 'draft') {
-      return <Chat messages={[]} chat={_chat} onSend={onSend} />;
+      return <Chat
+        messages={[]}
+        chat={_chat}
+        peerConnection={peerConnection}
+        onSend={onSend}
+      />;
     }
 
-    return <SocketChat chat={chat} onSend={onSend} />;
+    return <SocketChat
+      chat={_chat}
+      peerConnection={peerConnection}
+      onSend={onSend}
+    />;
   }
 });

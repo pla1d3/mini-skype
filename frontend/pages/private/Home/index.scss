@@ -13,6 +13,16 @@
   text-align: center;
 }
 
+.modalButton {
+  margin-right: 8px;
+}
+
+.modalActions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .content {
   background-color: #0e0e0e;
   width: 100%;

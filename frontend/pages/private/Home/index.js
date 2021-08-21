@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Tabs, Col, Typography } from 'components';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
+import { Button, Tabs, Col, Typography } from 'components';
 import { observer, axios } from 'helpers';
 import { useStore, useSocket } from 'helpers/hooks';
 import { Contacts, Chats } from './tabs';
@@ -8,10 +8,67 @@ import s from './index.scss';
 
 export default observer(function Home() {
   const user = useStore('user');
+  const modal = useStore('modal');
   const chats = useSocket('chats', { userId: user.data._id });
+
+  const peerConnection = useRef(null);
   const [slide, setSlide] = useState('chats');
   const [selectUser, setSelectUser] = useState(null);
   const [selectChatId, setSelectChatId] = useState('');
+
+  useEffect(()=> {
+    chats?.data?.forEach(chat=> {
+      if (!chat.callIds.length) return modal.set(null);
+      if (chat.callIds.length >= 2) return modal.set(null);
+      if (chat.callIds.find(userId=> userId == user.data._id)) {
+        modal.set({
+          title: 'We are waiting for the user\'s response',
+          footer: null,
+          children: (
+            <>
+              <div>Wait...</div>
+              <div className={s.modalActions}>
+                <Button type='ghost' onClick={onCancelCall}>Cancel</Button>
+              </div>
+            </>
+          )
+        });
+      } else {
+        modal.set({
+          title: 'Call from user',
+          footer: null,
+          children: (
+            <>
+              <div className={s.modalActions}>
+                <Button
+                  type='ghost'
+                  className={s.modalButton}
+                  onClick={onCancelCall}
+                >Cancel</Button>
+                <Button
+                  type='primary'
+                  onClick={()=> onCall(chat)}
+                >Confirm</Button>
+              </div>
+            </>
+          )
+        });
+      }
+    });
+  }, [JSON.stringify(chats.data)]);
+
+  function onCancelCall() {
+    // chat.callIds = []
+    modal.set(null);
+  }
+
+  async function onCall(chat) {
+    chat.callIds.push(user.data._id);
+    await axios.post(`chats/${chat._id}/edit`, {
+      callIds: chat.callIds
+    });
+    modal.set(null);
+  }
 
   const selectChat = useMemo(()=> {
     const chat = chats?.data?.find(chat=> {
@@ -34,7 +91,7 @@ export default observer(function Home() {
   }, [
     selectChatId,
     selectUser,
-    JSON.stringify(chats)
+    JSON.stringify(chats.data)
   ]);
 
   async function onSendMessage(text) {
@@ -112,6 +169,7 @@ export default observer(function Home() {
           !!selectChat &&
           <Chat
             chat={selectChat}
+            peerConnection={peerConnection}
             onSend={onSendMessage}
           />
         }

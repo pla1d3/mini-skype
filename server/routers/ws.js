@@ -9,14 +9,28 @@ export default {
     const sub = redis.createClient();
     sub.subscribe(`chats-${userId}`);
 
+    client.on('message', message=> {
+      const _message = JSON.parse(message);
+
+      if (_message.type.includes('call-')) {
+        const pub = redis.createClient();
+        pub.publish(`chats-${_message.toUserId}`, JSON.stringify({
+          ..._message.data,
+          isMeta: true
+        }));
+        pub.quit();
+      }
+    });
+
     sub.on('message', (channel, message)=> {
       if (channel === `chats-${userId}`) {
         client.send(message);
       }
     });
 
-    client.on('close', ()=> {
+    client.on('close', async ()=> {
       console.log('client close');
+      await controlers.chats.edit({ userId, callIds: [] });
       sub.quit();
     });
 
